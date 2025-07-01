@@ -61,4 +61,4 @@ def index():
                            input_text=input_text)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
