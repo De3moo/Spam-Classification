@@ -45,7 +45,4 @@ streamlit run app.py
 
 ## 🗼️ Screenshot
 
-![Screenshot](screenshots/spam-classifier-ui.png)
-
-<sub>📌 Replace with your actual screenshot inside a `![image](https://github.com/user-attachments/assets/39903d6e-7280-4c37-bb48-d16842e9a410)
-/` folder.</sub>
+![App Screenshot](screenshots/spam-classifier-ui.png)
