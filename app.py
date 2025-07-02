@@ -1,16 +1,12 @@
-from flask import Flask, render_template, request
+import streamlit as st
 import pandas as pd
-
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
-
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
 import seaborn as sns
 import matplotlib.pyplot as plt
 import os
-
-app = Flask(__name__)
 
 # Prepare the model once
 df = pd.read_csv('spam.csv', encoding='latin-1')[['v1', 'v2']]
@@ -31,34 +27,31 @@ y_pred = model.predict(X_test_vec)
 accuracy = accuracy_score(y_test, y_pred)
 report = classification_report(y_test, y_pred, output_dict=True)
 
+# Streamlit UI
+st.title("📧 Spam Classifier")
+
+st.write(f"**Model Accuracy:** {accuracy:.4f}")
+
+# Display classification report as a table
+st.subheader("📊 Classification Report")
+report_df = pd.DataFrame(report).transpose()
+st.dataframe(report_df)
+
+# Display Confusion Matrix
+st.subheader("🧮 Confusion Matrix")
 cm = confusion_matrix(y_test, y_pred)
-plt.figure(figsize=(6, 4))
+fig, ax = plt.subplots(figsize=(6, 4))
 sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['ham', 'spam'], yticklabels=['ham', 'spam'])
 plt.xlabel('Predicted')
 plt.ylabel('Actual')
 plt.title('Confusion Matrix')
-plt.tight_layout()
+st.pyplot(fig)
 
-# Ensure static folder exists and save plot
-if not os.path.exists('static'):
-    os.makedirs('static')
-plt.savefig('static/confusion_matrix.png')
-plt.close()
+# Message input
+st.subheader("✉️ Test Your Own Message")
+input_text = st.text_area("Enter a message here to classify it as spam or ham:")
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    prediction = None
-    input_text = ""
-    if request.method == 'POST':
-        input_text = request.form['message'].lower()
-        input_vec = vectorizer.transform([input_text])
-        prediction = model.predict(input_vec)[0]
-
-    return render_template('results.html',
-                           accuracy=accuracy,
-                           report=report,
-                           prediction=prediction,
-                           input_text=input_text)
-
-if __name__ == '__main__':
-    app.run(debug=False)
+if st.button("Classify"):
+    input_vec = vectorizer.transform([input_text.lower()])
+    prediction = model.predict(input_vec)[0]
+    st.write(f"**Prediction:** {prediction.upper()}")
